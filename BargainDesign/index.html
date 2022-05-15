@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>脑岛平台 jsPsych 模板</title>
+
+    <script src="https://www.naodao.com/public/experiment/libs/jspsych-7/jspsych.js"></script>
+    <link rel="stylesheet" href="https://www.naodao.com/public/experiment/libs/jspsych-7/css/jspsych.css">
+
+    <!-- 
+    注释：请将下方网址中的 plugin-xxxx.js 改为需要的、正确的插件名称
+
+    例如 HTML Keyboard Response 插件改为 plugin-html-keyboard-response.js
+    所有需要的插件都需要在下方添加引用
+    -->
+    <script src="https://www.naodao.com/public/experiment/libs/plugin/plugin-xxxx.js"></script>
+    <script src="https://www.naodao.com/public/experiment/libs/plugin/plugin-html-keyboard-response.js"></script>
+
+
+    <script src="https://www.naodao.com/public/experiment/libs/extension/naodao-2021-12.js"></script>
+    <script src="https://www.naodao.com/public/experiment/libs/axios.min.js"></script>
+
+  </head>
+
+  <body></body>
+
+  <script>
+    const jsPsych = initJsPsych({
+      extensions: [
+        {type: Naodao}
+      ]
+    });
+
+    let instruction = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: "欢迎参与本次实验，按下空格键继续",
+      choices: " ",
+      response_ends_trial: true
+    };
+
+    /**
+     * 注释：下方的 end 为结束语，默认是主时间线中最后一个插件，因此将
+     * Naodao 扩展在此处加载，如果最后一个插件不为本 end 插件则需要将
+     * 代码中的这一部分内容⇩
+     * ```
+     * extensions: [
+     *   {type: Naodao}
+     * ]
+     * ```
+     * 移到主时间线的最后一个插件去
+     */
+    let end = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: "感谢您参加本次实验，按下空格或 10 秒后自动退出",
+      choices: " ",
+      trial_duration: 10000,
+      response_end_trial: true,
+      extensions: [
+        {type: Naodao}
+      ]
+    };
+
+    /** 
+     * 脑岛扩展必需在主时间线最后一个插件插件加载，这里为 end
+    */
+    let main_timeline = [instruction, end];
+
+    jsPsych.run(main_timeline);
+
+  </script>
+</html>

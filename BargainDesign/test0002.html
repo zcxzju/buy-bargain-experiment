@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Bargain Design</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.js"></script>
+    <script src="https://unpkg.com/jspsych@7.2.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-button-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/extension-mouse-tracking@1.0.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.0"></script>
+    <link href="https://unpkg.com/jspsych@7.2.1/css/jspsych.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        .button {
+            border: none;
+            color: black;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+
+        }
+
+        .button1 {
+            background-color: rgba(128, 128, 128, 0.3);
+            left: 300px;
+            top: 700px;
+            height: 180px;
+            width: 280px;
+        }
+
+        /* gray */
+        .button2 {
+            background-color: rgba(128, 128, 128, 0.3);
+            right: 300px;
+            top: 700px;
+            height: 180px;
+            width: 280px;
+        }
+
+        /* gray */
+        .button3 {
+            background-color: rgba(128, 128, 128, 0.3);
+            bottom: 300px;
+            margin-left: -80px;
+            width: 160px;
+            left: 50%;
+        }
+        .button4 {
+            background-color: rgba(128, 128, 128, 0.3);
+            bottom: 300px;
+            margin-left: -80px;
+            width: 160px;
+            left: 50%;
+        }
+    </style>
+
+</head>
+
+
+
+<body>
+</body>
+<script>
+    function f() {
+        alert("恭喜您获得该商品8折优惠券");
+    }
+    function PriceList(a) {
+        var PriceWords = "<font color=\"#0000FF\" size=+2>当前价格为Price[a-1]元</font>";
+        return PriceWords;
+    }
+
+    var Price = new Array();
+    Price[0] = 100;
+    Price[1] = 200;
+    Price[2] = 300;
+    Price[3] = 400;
+    Price[4] = 500;
+    var i = 0;
+
+    var TimeOutID;
+    var IntervalID;
+    var totalBudget = 1500;
+    let ObjectIndices = [];
+    let ObjectYouHui = [];
+    let ObjectTime = [];
+    let ObjectIsBuy = [];
+
+
+    function exportExcel(excel) {
+        var keys = ['"商品索引"', '"优惠券价格"', '"停留时间"', '"是否购买"'];
+        var data = [ObjectIndices, ObjectYouHui, ObjectTime, ObjectIsBuy];
+
+
+        var convertToCSV = function (data, keys) {
+            var orderedData = [];
+            for (var i = 0, iLen = data.length; i < iLen; i++) {
+                temp = data[i];
+                for (var j = 0, jLen = temp.length; j < jLen; j++) {
+
+                    quotes = ['"' + temp[j] + '"'];
+                    if (!orderedData[j]) {
+                        orderedData.push([quotes]);
+                    } else {
+                        orderedData[j].push(quotes);
+                    }
+                }
+            }
+            return keys.join(',') + '\r\n' + orderedData.join('\r\n');
+        }
+
+
+        var str = convertToCSV(data, keys);
+
+        var blob = new Blob([str], { type: "text/plain;charset=utf-8" });
+        var filename = prompt("Please enter the filename");
+        if (filename != null && filename != "")
+            saveAs(blob, [filename + '.csv']);
+        else
+            alert("please enter a filename!");
+
+    }
+
+    /* initialize jsPsych */
+    var jsPsych = initJsPsych({
+        extensions: [
+            { type: jsPsychExtensionMouseTracking, params: { minimum_sample_time: 0 } }
+        ],
+        on_finish: function () {
+            jsPsych.data.displayData();
+            exportExcel(jsPsych.data.get().csv());
+
+        }
+    }
+    );
+
+
+    /* create timeline */
+    var timeline = [];
+
+    timeline.push({
+        type: jsPsychFullscreen,
+        fullscreen_mode: true
+    });
+
+    /* preload images */
+    var preload = {
+        type: jsPsychPreload,
+        images: ['product/product1.jpg', 'product/product2.jpg', 'product/product3.jpg', 'product/product4.jpg', 'product/product5.jpg']
+    };
+    timeline.push(preload);
+
+    /* define welcome message trial */
+    var welcome = {
+        type: jsPsychSurveyHtmlForm,
+        preamble: "欢迎来到本实验. 请输入您的实验 ID.",
+        html: '<p> <input name="SubjectID" type="text" /> </p>'
+    };
+    timeline.push(welcome);
+
+    /* define instructions trial */
+    var instructions1 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+        <p><strong><font size="10" color="red">实验说明</font></strong></p>
+        <p>1.在本实验中，你将浏览<strong>100</strong>种商品，并根据自己的判断从中选择<strong>20</strong>种商品。</p>
+        <p>2.初始时你有<strong>1500点</strong>的预算，请在预算范围内购买完商品</p>
+        <p>3.对于每一种商品，你可以选择购买，或是跳过。</p>
+        <p>注意：每种商品你仅可以浏览一次，不能重复浏览</p>
+        <br />
+        <br />
+      `,
+        button_html: '<div style="text-align:center"> <button class="button button3">%choice%</button></div>',
+        choices: ["Next"],
+        post_trial_gap: 100
+    };
+    timeline.push(instructions1);
+    var instructions2 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+        <p><strong><font size="10" color="red">实验收益</font></strong></p>
+        <p>1.你的最终的实验收益<strong>与你的选择</strong>有关</p>
+        <p>2.你选择的商品价值-价格的差值越高，最后的实验收益越高</p>
+        <br />
+        <br />
+      `,
+        button_html: '<div style="text-align:center"> <button class="button button4">%choice%</button></div>',
+        choices: ["Start"],
+        post_trial_gap: 100
+    };
+    timeline.push(instructions2);
+    /* define trial stimuli array for timeline variables */
+    var test_stimuli = [
+        { stimulus: "product/product1.jpg" },
+        { stimulus: "product/product2.jpg" },
+        { stimulus: "product/product3.jpg" },
+        { stimulus: "product/product4.jpg" },
+        { stimulus: "product/product5.jpg" }
+    ];
+
+    /* define fixation and test trials */
+    var fixation = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p style="font-size:48px; color:red;">按下Start就开始</p>',
+        button_html: '<div style="text-align:center"> <button class="button button3">%choice%</button></div>',
+        choices: ["Start"],
+        trial_duration: 20000,
+        data: {
+            task: 'fixation'
+        }
+    };
+
+
+    var ObjecIdx = 0;
+    var stayTime = 0;
+    var trial = {
+        type: jsPsychImageButtonResponse,
+        stimulus: jsPsych.timelineVariable('stimulus'),
+        stimulus_height: 500,
+        button_html: ['<button id="BuyButton" class="button button1">%choice%</button>', '<button id="SkipButton"class="button button2">%choice%</button>'],
+        choices: ['购买', '跳过'],
+        prompt: `<p id='mybox' style="font-size:24px; color:black;">当前价格为50元</p>
+                 <p>价值=商品所有属性值加总</p>            
+                 <h1 id="totalPrice" style="color: red;position:absolute; left:300px; top:100px; z-index: 9999;">当前预算为:${totalBudget}</h1>`,
+        on_start: function () {
+
+            stayTime = Date.now();
+            ObjectYouHui[ObjecIdx] = 0;
+            ObjectIsBuy[ObjecIdx] = jsPsych.timelineVariable('response') === 0 ? "1" : "0";
+            for (let i = 0; i < test_stimuli.length; i++) {
+                if (test_stimuli[i].stimulus === jsPsych.timelineVariable('stimulus')) {
+                    ObjectIndices.push(i);
+                }
+            }
+
+            TimeOutID = setTimeout(function () {
+                const youHuiJuan = 10 + Math.floor(Math.random() * 20);
+                ObjectYouHui[ObjecIdx] = youHuiJuan;
+                console.log(youHuiJuan);
+                var data1 = `<font color=\"#0000FF\" size=+4>恭喜您获得${youHuiJuan}元优惠券, 当前价格为${50 - youHuiJuan}元</font>`;
+                document.getElementById("mybox").innerHTML = data1;
+            }, 8000);
+
+           
+
+        },
+        on_load:function()
+        {
+            document.getElementById("totalPrice").innerHTML = `当前预算为:${totalBudget}`;
+            IntervalID = setInterval(function () {
+                totalBudget -= 1;
+                if (document.getElementById("totalPrice")) {
+                    document.getElementById("totalPrice").innerHTML = `当前预算为:${totalBudget}`;
+                }
+
+            }, 20000);
+        },
+        // 结束触发，清空计时器
+        on_finish: function () {
+            const responses = jsPsych.data.get().select('response').values;
+            ObjectIsBuy[ObjecIdx] = responses[responses.length - 1];
+            stayTime = Date.now() - stayTime;
+            ObjectTime[ObjecIdx] = stayTime;
+            clearTimeout(TimeOutID);
+            //clearInterval(IntervalID);
+            ObjecIdx++;
+            console.log(TimeOutID, 'is cleared');
+        },
+        extensions: [
+            { type: jsPsychExtensionMouseTracking, params: { events: ['mousemove', 'mousedown', 'mouseup'] } }
+        ],
+        data: {
+            task: 'draw'
+        }
+    };
+
+
+    /* define test procedure */
+    var test_procedure = {
+        timeline: [fixation, trial],
+        timeline_variables: test_stimuli,
+        randomize_order: true,
+        repetitions: 1
+    };
+    timeline.push(test_procedure);
+
+    /* start the experiment */
+    jsPsych.run(timeline);
+
+</script>
+
+</html>
