@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Bargain Design</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.js"></script>
+    <script src="https://unpkg.com/jspsych@7.2.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-button-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/extension-mouse-tracking@1.0.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.0"></script>
+    <link href="https://unpkg.com/jspsych@7.2.1/css/jspsych.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        .button {
+            border: none;
+            color: black;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+
+        }
+
+        .button1 {
+            background-color: rgba(128, 128, 128, 0.3);
+            left: 0px;
+            top: 0px;
+            height: 150px;
+            width: 200px;
+        }
+
+        /* gray */
+        .button2 {
+            background-color: rgba(128, 128, 128, 0.3);
+            right: 0px;
+            top: 0px;
+            height: 150px;
+            width: 200px;
+        }
+
+        /* gray */
+        .button3 {
+            background-color: rgba(128, 128, 128, 0.3);
+            right: 620px;
+            bottom: 0px;
+            height: 120px;
+            width: 200px;
+            /*text-align: center;*/
+        }
+
+        .button4 {
+            background-color: rgba(128, 128, 128, 0.3);
+            right: 620px;
+            bottom: 0px;
+            height: 120px;
+            width: 200px;
+        }
+    </style>
+</head>
+
+
+<body>
+</body>
+<script>
+
+    var i = 0;
+    var TimeOutID;
+    var timeIntervalID;
+    var priceIntervalID;
+    const totalBudget = 1500;
+    var currengBudget = totalBudget;
+    let ObjectIndices = [];
+    let ObjectYouHui = [];
+    let ObjectTime = [];
+    let ObjectIsBuy = [];
+    let MouseTrackings = [];
+
+
+    function exportExcel(excel) {
+        var keys = ['"商品索引"', '"优惠券价格"', '"停留时间"', '"是否购买"', '"鼠标轨迹"'];
+        var data = [ObjectIndices, ObjectYouHui, ObjectTime, ObjectIsBuy, MouseTrackings];
+
+
+        var convertToCSV = function (data, keys) {
+            var orderedData = [];
+            for (var i = 0, iLen = data.length; i < iLen; i++) {
+                temp = data[i];
+                for (var j = 0, jLen = temp.length; j < jLen; j++) {
+                    quotes = ['"' + temp[j] + '"'];
+                    if (!orderedData[j]) {
+                        orderedData.push([quotes]);
+                    } else {
+                        orderedData[j].push(quotes);
+                    }
+                }
+            }
+            return keys.join(',') + '\r\n' + orderedData.join('\r\n');
+        }
+
+
+        var str = convertToCSV(data, keys);
+        var blob = new Blob([str], { type: "text/plain;charset=utf-8" });
+        const filename = jsPsych.data.get().trials[2].response.SubjectID;
+
+        saveAs(blob, [filename + '.csv']);
+    }
+
+    /* initialize jsPsych */
+    var jsPsych = initJsPsych({
+        show_progress_bar: true,
+        auto_update_progress_bar: false,
+        message_progress_bar: '实验完成进度：',
+        extensions: [
+            { type: jsPsychExtensionMouseTracking, params: { minimum_sample_time: 0 } }
+        ],
+        on_finish: function () {
+            jsPsych.data.displayData();
+            exportExcel(jsPsych.data.get().csv());
+
+        }
+    }
+    );
+
+
+    /* create timeline */
+    var timeline = [];
+
+    timeline.push({
+        type: jsPsychFullscreen,
+        fullscreen_mode: true
+    });
+
+    /* preload images */
+    var preload = {
+        type: jsPsychPreload,
+        images: ['product2/01.jpg', 'product2/02.jpg', 'product2/03.jpg', 'product2/04.jpg', 'product2/05.jpg','product2/06.jpg','product2/07.jpg','product2/08.jpg','product2/09.jpg','product2/10.jpg',
+        'product2/11.jpg', 'product2/12.jpg', 'product2/13.jpg', 'product2/14.jpg', 'product2/15.jpg','product2/16.jpg','product2/17.jpg','product2/18.jpg','product2/19.jpg','product2/20.jpg',
+        'product2/21.jpg', 'product2/22.jpg', 'product2/23.jpg', 'product2/24.jpg', 'product2/25.jpg','product2/26.jpg','product2/27.jpg','product2/28.jpg','product2/29.jpg','product2/30.jpg',
+        'product2/31.jpg', 'product2/32.jpg', 'product2/33.jpg', 'product2/34.jpg', 'product2/35.jpg','product2/36.jpg','product2/37.jpg','product2/38.jpg','product2/39.jpg','product2/40.jpg',
+        'product2/41.jpg', 'product2/42.jpg', 'product2/43.jpg', 'product2/44.jpg', 'product2/45.jpg','product2/46.jpg','product2/47.jpg','product2/48.jpg','product2/49.jpg','product2/50.jpg',
+        'product2/51.jpg', 'product2/52.jpg', 'product2/53.jpg', 'product2/54.jpg', 'product2/55.jpg','product2/56.jpg','product2/57.jpg','product2/58.jpg','product2/59.jpg','product2/60.jpg',
+        'product2/61.jpg', 'product2/62.jpg', 'product2/63.jpg', 'product2/64.jpg', 'product2/65.jpg','product2/66.jpg','product2/67.jpg','product2/68.jpg','product2/69.jpg','product2/70.jpg',
+        'product2/71.jpg', 'product2/72.jpg', 'product2/73.jpg', 'product2/74.jpg', 'product2/75.jpg','product2/76.jpg','product2/77.jpg','product2/78.jpg','product2/79.jpg','product2/80.jpg',
+        'product2/81.jpg', 'product2/82.jpg', 'product2/83.jpg', 'product2/84.jpg', 'product2/85.jpg','product2/86.jpg','product2/87.jpg','product2/88.jpg','product2/89.jpg','product2/90.jpg',
+        'product2/91.jpg', 'product2/92.jpg', 'product2/93.jpg', 'product2/94.jpg', 'product2/95.jpg','product2/96.jpg','product2/97.jpg','product2/98.jpg','product2/99.jpg','product2/100.jpg',]
+    };
+    timeline.push(preload);
+
+    /* define welcome message trial */
+    var welcome = {
+        type: jsPsychSurveyHtmlForm,
+        preamble: "欢迎来到本实验. 请输入您的实验 ID.",
+        html: '<p> <input name="SubjectID" type="text" /> </p>'
+    };
+    timeline.push(welcome);
+
+    /* define instructions trial */
+    var instructions1 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+        <p><strong><font size="10" >实验说明</font></strong></p>
+        <p>1.在本实验中，你将浏览<strong>100</strong>种商品，并根据自己的判断从中选择<strong>20</strong>种商品。</p>
+        <p>2.初始时你有<strong>1500点</strong>的预算，请在预算范围内购买完商品</p>
+        <p>3.对于每一种商品，你可以选择购买，或是跳过。</p>
+        <p>注意：每种商品你仅可以浏览一次，不能重复浏览</p>
+        <br />
+        <br />
+      `,
+        button_html: '<div style="text-align:center"> <button class="button button3">%choice%</button></div>',
+        choices: ["Next"],
+        post_trial_gap: 100
+    };
+    timeline.push(instructions1);
+    var instructions2 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+        <p><strong><font size="10" >实验收益</font></strong></p>
+        <p>1.你的最终的实验收益<strong>与你的选择</strong>有关</p>
+        <p>2.你选择的商品价值-价格的差值越高，最后的实验收益越高</p>
+        <br />
+        <br />
+      `,
+        button_html: '<div style="text-align:center"> <button class="button button4">%choice%</button></div>',
+        choices: ["开始"],
+        post_trial_gap: 100
+    };
+    timeline.push(instructions2);
+    /* define trial stimuli array for timeline variables */
+    var test_stimuli = [
+    { stimulus: "product2/01.jpg" },{ stimulus: "product2/02.jpg" },{ stimulus: "product2/03.jpg" },{ stimulus: "product2/04.jpg" },{ stimulus: "product2/05.jpg" },{ stimulus: "product2/06.jpg" },{ stimulus: "product2/07.jpg" },{ stimulus: "product2/08.jpg" },{ stimulus: "product2/09.jpg" },{ stimulus: "product2/10.jpg" },
+        { stimulus: "product2/11.jpg" },{ stimulus: "product2/12.jpg" },{ stimulus: "product2/13.jpg" },{ stimulus: "product2/14.jpg" },{ stimulus: "product2/15.jpg" },{ stimulus: "product2/16.jpg" },{ stimulus: "product2/17.jpg" },{ stimulus: "product2/18.jpg" },{ stimulus: "product2/19.jpg" },{ stimulus: "product2/20.jpg" },
+        { stimulus: "product2/21.jpg" },{ stimulus: "product2/22.jpg" },{ stimulus: "product2/23.jpg" },{ stimulus: "product2/24.jpg" },{ stimulus: "product2/25.jpg" },{ stimulus: "product2/26.jpg" },{ stimulus: "product2/27.jpg" },{ stimulus: "product2/28.jpg" },{ stimulus: "product2/29.jpg" },{ stimulus: "product2/30.jpg" },
+        { stimulus: "product2/31.jpg" },{ stimulus: "product2/32.jpg" },{ stimulus: "product2/33.jpg" },{ stimulus: "product2/34.jpg" },{ stimulus: "product2/35.jpg" },{ stimulus: "product2/36.jpg" },{ stimulus: "product2/37.jpg" },{ stimulus: "product2/38.jpg" },{ stimulus: "product2/39.jpg" },{ stimulus: "product2/40.jpg" },
+        { stimulus: "product2/41.jpg" },{ stimulus: "product2/42.jpg" },{ stimulus: "product2/43.jpg" },{ stimulus: "product2/44.jpg" },{ stimulus: "product2/45.jpg" },{ stimulus: "product2/46.jpg" },{ stimulus: "product2/47.jpg" },{ stimulus: "product2/48.jpg" },{ stimulus: "product2/49.jpg" },{ stimulus: "product2/50.jpg" },
+        { stimulus: "product2/51.jpg" },{ stimulus: "product2/52.jpg" },{ stimulus: "product2/53.jpg" },{ stimulus: "product2/54.jpg" },{ stimulus: "product2/55.jpg" },{ stimulus: "product2/56.jpg" },{ stimulus: "product2/57.jpg" },{ stimulus: "product2/58.jpg" },{ stimulus: "product2/59.jpg" },{ stimulus: "product2/60.jpg" },
+        { stimulus: "product2/61.jpg" },{ stimulus: "product2/62.jpg" },{ stimulus: "product2/63.jpg" },{ stimulus: "product2/64.jpg" },{ stimulus: "product2/65.jpg" },{ stimulus: "product2/66.jpg" },{ stimulus: "product2/67.jpg" },{ stimulus: "product2/68.jpg" },{ stimulus: "product2/69.jpg" },{ stimulus: "product2/70.jpg" },
+        { stimulus: "product2/71.jpg" },{ stimulus: "product2/72.jpg" },{ stimulus: "product2/73.jpg" },{ stimulus: "product2/74.jpg" },{ stimulus: "product2/75.jpg" },{ stimulus: "product2/76.jpg" },{ stimulus: "product2/77.jpg" },{ stimulus: "product2/78.jpg" },{ stimulus: "product2/79.jpg" },{ stimulus: "product2/80.jpg" },
+        { stimulus: "product2/81.jpg" },{ stimulus: "product2/82.jpg" },{ stimulus: "product2/83.jpg" },{ stimulus: "product2/84.jpg" },{ stimulus: "product2/85.jpg" },{ stimulus: "product2/86.jpg" },{ stimulus: "product2/87.jpg" },{ stimulus: "product2/88.jpg" },{ stimulus: "product2/89.jpg" },{ stimulus: "product2/90.jpg" },
+        { stimulus: "product2/91.jpg" },{ stimulus: "product2/92.jpg" },{ stimulus: "product2/93.jpg" },{ stimulus: "product2/94.jpg" },{ stimulus: "product2/95.jpg" },{ stimulus: "product2/96.jpg" },{ stimulus: "product2/97.jpg" },{ stimulus: "product2/98.jpg" },{ stimulus: "product2/99.jpg" },{ stimulus: "product2/100.jpg" }
+    ];
+
+    /* define fixation and test trials */
+    var fixation = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p style="font-size:48px; ">按下Start就开始</p>',
+        button_html: '<div style="text-align:center"> <button class="button button3">%choice%</button></div>',
+        choices: ["Start"],
+        trial_duration: 20000,
+        data: {
+            task: 'fixation'
+        }
+    };
+
+
+    var ObjecIdx = 0;
+    var experimentStartTime;
+    var stayTime = 0;
+    var curPrice;
+    var trial = {
+        type: jsPsychImageButtonResponse,
+        stimulus: jsPsych.timelineVariable('stimulus'),
+        stimulus_height: 600,
+        
+        button_html: ['<button id="BuyButton" class="button button1">%choice%</button>', '<button id="SkipButton"class="button button2">%choice%</button>'],
+        choices: ['购买', '跳过'],
+        prompt: `<p id='mybox' style="font-size:36px; color:black;">当前价格为50元</p>           
+                 <h1 id="experimentTime" style="position:absolute; left:300px; top:100px; z-index: 9999;">实验时间为:0</h1>
+                 <h1 id="currentMoney" style="position:absolute; right:300px; top:100px; z-index: 9999;">当前预算为:0</h1>`,
+        on_start: function () {
+            curPrice = 50;
+            if (ObjecIdx === 0) {
+                experimentStartTime = Date.now();
+            }
+            stayTime = Date.now();
+            ObjectYouHui[ObjecIdx] = 0;
+            for (let i = 0; i < test_stimuli.length; i++) {
+                if (test_stimuli[i].stimulus === jsPsych.timelineVariable('stimulus')) {
+                    ObjectIndices.push(i);
+                }
+            }
+
+            TimeOutID = setTimeout(function () {
+                const youHuiJuan = 10 + Math.floor(Math.random() * 20);
+                ObjectYouHui[ObjecIdx] = youHuiJuan;
+                curPrice -= youHuiJuan;
+                var data1 = `<font color=\"#0000FF\" size=+4>恭喜您获得${youHuiJuan}元优惠券, 当前价格为${curPrice}元</font>`;
+                document.getElementById("mybox").innerHTML = data1;
+            }, 20000);
+        },
+        on_load: function () {
+            document.getElementById("experimentTime").innerHTML = `实验时间为:${((Date.now() - experimentStartTime) / 1000).toFixed(0)}秒`;
+            document.getElementById("currentMoney").innerHTML = `当前预算为:${currengBudget}点`;
+
+            if (ObjecIdx === 0) {
+                timeIntervalID = setInterval(function () {
+                    if (document.getElementById("experimentTime")) {
+                        document.getElementById("experimentTime").innerHTML = `实验时间为:${((Date.now() - experimentStartTime) / 1000).toFixed(0)}秒`;
+                    }
+
+                }, 20);
+
+                priceIntervalID = setInterval(function () {
+                    currengBudget -= 1;
+                    if (document.getElementById("currentMoney")) {
+                        document.getElementById("currentMoney").innerHTML = `当前预算为:${currengBudget}点`;
+                    }
+
+                }, 10000);
+            }
+        },
+        // 结束触发，清空计时器
+        on_finish: function () {
+            const data = jsPsych.data.get();
+            const mouseTrackings = data.select('mouse_tracking_data').values;
+
+            const responses = data.select('response').values;
+            const curResponse = responses[responses.length - 1];
+            if (curResponse === 0) {
+                currengBudget -= curPrice;
+            }
+
+            const curMouseTrackings = mouseTrackings[mouseTrackings.length - 1];
+            ObjectIsBuy[ObjecIdx] = curResponse;
+            MouseTrackings[ObjecIdx] = JSON.stringify(curMouseTrackings);;
+
+            stayTime = Date.now() - stayTime;
+            ObjectTime[ObjecIdx] = stayTime;
+            clearTimeout(TimeOutID);
+            //clearInterval(priceIntervalID);
+            ObjecIdx++;
+            console.log(TimeOutID, 'is cleared');
+
+            jsPsych.setProgressBar(jsPsych.getProgressBarCompleted() + (1/test_stimuli.length));
+        },
+        extensions: [
+            { type: jsPsychExtensionMouseTracking, params: { events: ['mousemove', 'mousedown', 'mouseup'] } }
+        ],
+        data: {
+            task: 'draw'
+        }
+    };
+
+
+    /* define test procedure */
+    var test_procedure = {
+        timeline: [fixation, trial],
+        timeline_variables: test_stimuli,
+        randomize_order: true,
+        repetitions: 1
+    };
+    timeline.push(test_procedure);
+
+ 
+    var instructions3 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+        <p><font size="10" >实验结束</p>
+        <p><font size="10">请示意实验人员</p>
+        <br />
+        <br />
+      `,
+        button_html: '<div style="text-align:center"> <button class="button button3">%choice%</button></div>',
+        choices: ["Next"],
+        post_trial_gap: 100
+    };
+    timeline.push(instructions3);
+    /* start the experiment */
+    jsPsych.run(timeline);
+
+</script>
+
+</html>
